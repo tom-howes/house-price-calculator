@@ -9,6 +9,7 @@ from sklearn.svm import SVC
 from xgboost import XGBRegressor
 from sklearn.linear_model import LinearRegression, Lasso, Ridge
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error as mae
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -88,3 +89,35 @@ if __name__ == "__main__":
     df.drop(to_remove, axis=1, inplace=True)
     
 ### Model Training ###
+
+    df.dropna(inplace=True)
+
+    features = df.drop(['parcelid'], axis=1)
+    target = df['target'].values
+
+    # Split into training and testing data
+
+    X_train, X_val, \
+        Y_train, Y_val = train_test_split(features, target,
+                                          test_size=0.1,
+                                          random_state=22)
+    print(X_train.shape, X_val.shape)
+
+    # Normalizing features for stable and faster training
+
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    X_val = scaler.transform(X_val)
+
+    models = [LinearRegression(), XGBRegressor(), Lasso(), RandomForestRegressor(), Ridge()]
+
+    for i in range(5):
+        models[i].fit(X_train, Y_train)
+        print(f"{models[i]} : ")
+
+        train_preds = models[i].predict(X_train)
+        print('Training Error : ', mae(Y_train, train_preds))
+
+        val_preds = models[i].predict(X_val)
+        print('Validation Error : ', mae(Y_val, val_preds))
+        print()
