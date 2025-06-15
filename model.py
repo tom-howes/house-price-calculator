@@ -29,7 +29,7 @@ if __name__ == "__main__":
     df = remove_null(df)
     print(df.info())
     df.isnull().sum().plot.bar()
-    plt.show()
+    # plt.show()
 
     for col in df.columns:
         if df[col].dtype == 'object':
@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
     ints, objects, floats = [], [], []
 
-    # Exploratory Data Analysis
+### Exploratory Data Analysis ###
     for col in df.columns:
         if df[col].dtype == float:
             floats.append(col)
@@ -57,6 +57,34 @@ if __name__ == "__main__":
         print(df[col].unique())
         print()
     
-    plt.figure(figsize=(8, 5))
-    sb.distplot(df['target'])
-    plt.show()
+    # # Distribution plot
+    # plt.figure(figsize=(8, 5))
+    # sb.distplot(df['target'])
+    # plt.show()
+
+    # # Box plot to detect outliers
+    # plt.figure(figsize=(8, 5))
+    # sb.boxplot(df['target'])
+    # plt.show()
+
+    print('Shape of the dataframe before removal of outliers', df.shape)
+    df = df[(df['target'] > -1) & (df['target']< 1)]
+    print('Shape of the dataframe after remove of outliers', df.shape)
+
+    for col in objects:
+        le = LabelEncoder()
+        df[col] = le.fit_transform(df[col])
+
+    # # Check highly correlated features
+    # plt.figure(figsize=(15, 15))
+    # sb.heatmap(df.corr() > 0.8,
+    #            annot=True,
+    #            cbar=False)
+    # plt.show()
+
+    to_remove = ['calculatedbathnbr', 'fullbathcnt', 'fips',
+                 'rawcensustractandblock', 'taxvaluedollarcnt',
+                 'finishedsquarefeet12', 'landtaxvaluedollarcnt']
+    df.drop(to_remove, axis=1, inplace=True)
+    
+### Model Training ###
